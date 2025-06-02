@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="cy">
+<head>
+  <meta charset="UTF-8">
+  <title>Tywydd Aberystwyth (Wedi’i Gyfieithu)</title>
+  <meta http-equiv="refresh" content="600" />
+  <style>
+    html, body, iframe {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
+    iframe {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="weatherFrame" src="https://signageapps.co/api/apps/weather/ABERYSTWYTH/GB/metric" frameborder="0"></iframe>
+
+  <script>
+    // Translation map
+    const translations = {
+      "Weather": "Tywydd",
+      "Wind": "Gwynt",
+      "Humidity": "Lleithder",
+      "Rain": "Glaw",
+      "Snow": "Eira",
+      "Cloudy": "Cymylog",
+      "Clear": "Clir",
+      "Mostly": "Yn bennaf",
+      "Partly": "Yn rhannol",
+      "Light": "Ysgafn",
+      "Heavy": "Trwm",
+      "Temperature": "Tymheredd",
+      "Feels like": "Teimlad fel",
+      "Forecast": "Rhagolygon",
+      "Today": "Heddiw",
+      "Tomorrow": "Yfory",
+    };
+
+    // Wait for the iframe to load, then attempt to translate
+    document.getElementById("weatherFrame").addEventListener("load", () => {
+      const iframe = document.getElementById("weatherFrame");
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Retry in case dynamic content loads late
+        const translateContent = () => {
+          Object.entries(translations).forEach(([en, cy]) => {
+            doc.body.innerHTML = doc.body.innerHTML.replace(new RegExp(en, 'gi'), cy);
+          });
+        };
+
+        // Run initially and a few times after
+        translateContent();
+        setTimeout(translateContent, 2000);
+        setTimeout(translateContent, 5000);
+        setTimeout(translateContent, 10000);
+      } catch (e) {
+        console.warn("Translation failed — likely due to cross-origin restrictions.");
+      }
+    });
+  </script>
+</body>
+</html>
