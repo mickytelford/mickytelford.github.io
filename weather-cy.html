@@ -1,58 +1,53 @@
 <!DOCTYPE html>
 <html lang="cy">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="600" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tywydd Aberystwyth</title>
-  <meta http-equiv="refresh" content="600">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: #e0f7fa;
-      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #ffffff;
+      font-family: "Segoe UI", sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
-    .weather-container {
-      background: white;
-      border-radius: 15px;
-      padding: 2em;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+    .weather-wrapper {
       text-align: center;
-      max-width: 400px;
-      width: 100%;
     }
-    h1 {
-      margin-top: 0;
-      font-size: 2em;
-      color: #004d40;
+    .city {
+      font-size: 3em;
+      font-weight: 600;
+      margin-bottom: 0.2em;
     }
     .temperature {
-      font-size: 4em;
+      font-size: 6em;
       font-weight: bold;
       margin: 0.2em 0;
-      color: #00796b;
     }
     .description {
-      font-size: 1.5em;
+      font-size: 2em;
+      margin-bottom: 1em;
       text-transform: capitalize;
-      color: #00695c;
     }
-    .extra {
-      margin-top: 1em;
-      font-size: 1.1em;
-      color: #004d40;
+    .details {
+      font-size: 1.2em;
+      color: #aaaaaa;
     }
   </style>
 </head>
 <body>
-  <div class="weather-container">
-    <h1>Tywydd Aberystwyth</h1>
+  <div class="weather-wrapper">
+    <div class="city">Aberystwyth</div>
     <div id="weather">
-      <p>Yn llwytho...</p>
+      <div class="temperature">...</div>
+      <div class="description">Yn llwytho...</div>
+      <div class="details"></div>
     </div>
   </div>
 
@@ -66,7 +61,6 @@
         const wind = current.windspeedKmph;
         const humidity = current.humidity;
 
-        // Basic translation map from English to Welsh
         const descMap = {
           "Partly cloudy": "Cymylog yn rhannol",
           "Sunny": "Heulog",
@@ -83,18 +77,15 @@
 
         const translatedDesc = descMap[desc] || desc;
 
-        document.getElementById('weather').innerHTML = `
-          <p class="temperature">${temp}°C</p>
-          <p class="description">${translatedDesc}</p>
-          <div class="extra">
-            <p>Gwynt: ${wind} km/h</p>
-            <p>Lleithder: ${humidity}%</p>
-          </div>
+        document.querySelector(".temperature").textContent = `${temp}°C`;
+        document.querySelector(".description").textContent = translatedDesc;
+        document.querySelector(".details").innerHTML = `
+          Gwynt: ${wind} km/h &nbsp;|&nbsp; Lleithder: ${humidity}%
         `;
       })
-      .catch(error => {
-        document.getElementById('weather').innerHTML = `<p>Methwyd llwytho'r data tywydd.</p>`;
-        console.error(error);
+      .catch(() => {
+        document.querySelector(".description").textContent =
+          "Methwyd llwytho data tywydd";
       });
   </script>
 </body>
