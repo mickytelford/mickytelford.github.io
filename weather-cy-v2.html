@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="cy">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="600" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tywydd Aberystwyth</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #ffffff;
+      color: #c81441;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .left-panel {
+      background-color: #c81441;
+      width: 40%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .left-panel img {
+      max-width: 90%;
+      max-height: 90%;
+    }
+    .right-panel {
+      width: 60%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2em;
+      box-sizing: border-box;
+    }
+    .city {
+      font-size: 3em;
+      font-weight: 600;
+      margin-bottom: 0.5em;
+    }
+    .temperature {
+      font-size: 6em;
+      font-weight: bold;
+      margin: 0.2em 0;
+    }
+    .description {
+      font-size: 2em;
+      margin-bottom: 1em;
+      text-transform: capitalize;
+    }
+    .details {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="left-panel">
+    <img src="https://mickytelford.github.io/2019-Cwmni-Theatr-Arad-Goch.jpg" alt="Logo Arad Goch" />
+  </div>
+  <div class="right-panel">
+    <div class="city">Aberystwyth</div>
+    <div class="temperature" id="temp">...</div>
+    <div class="description" id="desc">Yn llwytho...</div>
+    <div class="details" id="details"></div>
+  </div>
+
+  <script>
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=52.4153&longitude=-4.0829&current_weather=true")
+      .then(res => res.json())
+      .then(data => {
+        const weather = data.current_weather;
+        const temp = weather.temperature;
+        const wind = weather.windspeed;
+        const code = weather.weathercode;
+
+        const descMap = {
+          0: "Clir",
+          1: "Cymylog yn rhannol",
+          2: "Cymylog",
+          3: "Cymylog trwm",
+          45: "Niwl",
+          48: "Niwl trwchus",
+          51: "Glaw mân",
+          53: "Glaw ysgafn",
+          55: "Glaw",
+          61: "Glaw byr",
+          63: "Glaw cymedrol",
+          65: "Glaw trwm",
+          71: "Eira ysgafn",
+          73: "Eira",
+          75: "Eira trwm",
+          95: "Mellt a tharannau",
+          96: "Mellt a tharannau gyda phripiau eira",
+          99: "Mellt trwm"
+        };
+
+        const desc = descMap[code] || "Tywydd anhysbys";
+
+        document.getElementById("temp").textContent = `${temp}°C`;
+        document.getElementById("desc").textContent = desc;
+        document.getElementById("details").innerHTML = `Gwynt: ${wind} km/h`;
+      })
+      .catch(() => {
+        document.getElementById("desc").textContent = "Methwyd llwytho data tywydd";
+      });
+  </script>
+</body>
+</html>
