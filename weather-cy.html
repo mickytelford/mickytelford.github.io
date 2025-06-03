@@ -10,12 +10,13 @@
       margin: 0;
       padding: 0;
       font-family: "Segoe UI", sans-serif;
-      background-color: #fff;
+      background-color: #ffffff;
       color: #c81441;
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
+
     .left-panel {
       background-color: #c81441;
       width: 40%;
@@ -23,36 +24,54 @@
       align-items: center;
       justify-content: center;
     }
+
     .left-panel img {
       max-width: 90%;
       max-height: 90%;
     }
+
     .right-panel {
       width: 60%;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: row;
+      align-items: center;
       padding: 2em;
       box-sizing: border-box;
+      justify-content: space-between;
     }
+
+    .weather-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     .city {
       font-size: 3em;
       font-weight: 600;
       margin-bottom: 0.5em;
     }
+
     .temperature {
       font-size: 6em;
       font-weight: bold;
       margin: 0.2em 0;
     }
+
     .description {
       font-size: 2em;
       margin-bottom: 1em;
       text-transform: capitalize;
     }
+
     .details {
       font-size: 1.2em;
+    }
+
+    .weather-icon {
+      width: 120px;
+      height: 120px;
+      fill: #c81441;
     }
   </style>
 </head>
@@ -60,44 +79,61 @@
   <div class="left-panel">
     <img src="https://mickytelford.github.io/2019-Cwmni-Theatr-Arad-Goch.jpg" alt="Logo Arad Goch" />
   </div>
+
   <div class="right-panel">
-    <div class="city">Aberystwyth</div>
-    <div class="temperature" id="temp">...</div>
-    <div class="description" id="desc">Yn llwytho...</div>
-    <div class="details" id="details"></div>
+    <div class="weather-info">
+      <div class="city">Aberystwyth</div>
+      <div class="temperature" id="temp">...</div>
+      <div class="description" id="desc">Yn llwytho...</div>
+      <div class="details" id="details"></div>
+    </div>
+    <div id="icon-container"></div>
   </div>
 
   <script>
-    fetch("https://wttr.in/Aberystwyth?format=j1")
-      .then(response => response.json())
+    const icons = {
+      sun: `<svg class="weather-icon" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zm10.48 0l1.8-1.79 1.41 1.41-1.79 1.8-1.42-1.42zM12 4V1h-1v3h1zm0 16v3h-1v-3h1zm7.16-4.24l1.79 1.8-1.41 1.41-1.8-1.79 1.42-1.42zM4.24 17.76l-1.79 1.8 1.41 1.41 1.8-1.79-1.42-1.42zM20 13h3v-1h-3v1zM1 13h3v-1H1v1zm16.95-2.05a7 7 0 1 1-9.9 0 7 7 0 0 1 9.9 0z"/></svg>`,
+      cloud: `<svg class="weather-icon" viewBox="0 0 24 24"><path d="M6 19h13a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.9-1.5A4.5 4.5 0 0 0 6 19z"/></svg>`,
+      rain: `<svg class="weather-icon" viewBox="0 0 24 24"><path d="M6 19h13a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.9-1.5A4.5 4.5 0 0 0 6 19z"/><path d="M8 20l-1 2m5-2l-1 2m5-2l-1 2" stroke="#c81441" stroke-width="2" stroke-linecap="round"/></svg>`,
+      snow: `<svg class="weather-icon" viewBox="0 0 24 24"><path d="M6 19h13a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.9-1.5A4.5 4.5 0 0 0 6 19z"/><path d="M12 20v2m-1.5-1.5l-1 1m4-1l1 1" stroke="#c81441" stroke-width="2" stroke-linecap="round"/></svg>`,
+      wind: `<svg class="weather-icon" viewBox="0 0 24 24"><path d="M4 8h13a2 2 0 1 0-2-2"/><path d="M2 12h10a2 2 0 1 1-2 2"/><path d="M4 16h9a2 2 0 1 1-2 2" stroke="#c81441" stroke-width="2" fill="none"/></svg>`
+    };
+
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=52.4153&longitude=-4.0829&current_weather=true")
+      .then(res => res.json())
       .then(data => {
-        const current = data.current_condition[0];
-        const temp = current.temp_C;
-        const desc = current.weatherDesc[0].value;
-        const wind = current.windspeedKmph;
-        const humidity = current.humidity;
+        const weather = data.current_weather;
+        const temp = weather.temperature;
+        const wind = weather.windspeed;
+        const code = weather.weathercode;
 
         const descMap = {
-          "Partly cloudy": "Cymylog yn rhannol",
-          "Sunny": "Heulog",
-          "Cloudy": "Cymylog",
-          "Overcast": "Cymylog trwm",
-          "Light rain": "Glaw ysgafn",
-          "Heavy rain": "Glaw trwm",
-          "Clear": "Clir",
-          "Mist": "Niwl",
-          "Fog": "Niwl trwchus",
-          "Snow": "Eira",
-          "Thunderstorm": "Mellt a tharannau"
+          0: ["Clir", "sun"],
+          1: ["Cymylog yn rhannol", "cloud"],
+          2: ["Cymylog", "cloud"],
+          3: ["Cymylog trwm", "cloud"],
+          45: ["Niwl", "cloud"],
+          48: ["Niwl trwchus", "cloud"],
+          51: ["Glaw mân", "rain"],
+          53: ["Glaw ysgafn", "rain"],
+          55: ["Glaw", "rain"],
+          61: ["Glaw byr", "rain"],
+          63: ["Glaw cymedrol", "rain"],
+          65: ["Glaw trwm", "rain"],
+          71: ["Eira ysgafn", "snow"],
+          73: ["Eira", "snow"],
+          75: ["Eira trwm", "snow"],
+          95: ["Mellt a tharannau", "rain"],
+          96: ["Mellt gyda eira", "rain"],
+          99: ["Mellt trwm", "rain"]
         };
 
-        const translatedDesc = descMap[desc] || desc;
+        const [desc, icon] = descMap[code] || ["Tywydd anhysbys", "wind"];
 
         document.getElementById("temp").textContent = `${temp}°C`;
-        document.getElementById("desc").textContent = translatedDesc;
-        document.getElementById("details").innerHTML = `
-          Gwynt: ${wind} km/h &nbsp;|&nbsp; Lleithder: ${humidity}%
-        `;
+        document.getElementById("desc").textContent = desc;
+        document.getElementById("details").innerHTML = `Gwynt: ${wind} km/h`;
+        document.getElementById("icon-container").innerHTML = icons[icon];
       })
       .catch(() => {
         document.getElementById("desc").textContent = "Methwyd llwytho data tywydd";
