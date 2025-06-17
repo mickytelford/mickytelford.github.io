@@ -54,6 +54,11 @@
       font-weight: 600;
     }
 
+    #date {
+      font-size: 1.5em;
+      margin-top: 0.5em;
+    }
+
     .right-panel {
       width: 20%;
       position: relative;
@@ -89,14 +94,11 @@
   <div class="center-panel">
     <h1>Ble ydym ni nesa?</h1>
     <p id="venue">Yn llwytho...</p>
+    <p id="date"></p>
   </div>
 
   <div class="right-panel">
-    <img
-      class="map"
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Wales_location_map.svg/800px-Wales_location_map.svg.png"
-      alt="Map of Wales"
-    />
+    <img class="map" id="map" src="wales.svg" alt="Map of Wales" />
     <img class="van" src="AG-van.svg" alt="Van" />
   </div>
 
@@ -114,16 +116,71 @@
       { date: "2025-07-03", venue: "Memo, Y Barri" },
     ];
 
-    const today = new Date().toISOString().split("T")[0];
+    const venueCoords = {
+      "Canolfan y Celfyddydau Aberystwyth": { x: 35, y: 30 },
+      "Riverfront, Casnewydd": { x: 80, y: 85 },
+      "Canolfan Garth Olwg, Pentre’r Eglwys": { x: 75, y: 75 },
+      "Canolfan Taliesin, Abertawe": { x: 60, y: 80 },
+      "Y Drenewydd": { x: 45, y: 40 },
+      "Neuadd Dwyfor, Pwllheli": { x: 25, y: 20 },
+      "Theatr Borough, Y Fenni": { x: 78, y: 78 },
+      "Y Muni, Pontypridd": { x: 72, y: 76 },
+      "Memo, Y Barri": { x: 70, y: 82 },
+    };
+
     const venueElem = document.getElementById("venue");
+    const dateElem = document.getElementById("date");
+    const van = document.querySelector(".van");
+    const map = document.getElementById("map");
 
-    const nextVenue = tourDates.find((d) => d.date >= today);
+    let currentIndex = -1;
 
-    if (nextVenue) {
-      venueElem.innerText = nextVenue.venue;
-    } else {
-      venueElem.innerText = "Taith wedi gorffen";
+    function findInitialIndex() {
+      const today = new Date().toISOString().split("T")[0];
+      return tourDates.findIndex(d => d.date >= today);
     }
+
+    function showStop(index) {
+      const stop = tourDates[index];
+      if (!stop) {
+        venueElem.innerText = "Taith wedi gorffen";
+        dateElem.innerText = "";
+        van.style.display = "none";
+        return;
+      }
+
+      venueElem.innerText = stop.venue;
+      dateElem.innerText = stop.date;
+      van.style.display = "block";
+
+      const coords = venueCoords[stop.venue];
+      if (coords && map) {
+        van.style.left = `${coords.x}%`;
+        van.style.top = `${coords.y}%`;
+        van.style.transform = "translate(-50%, -50%)";
+      } else {
+        console.warn("No coordinates for venue:", stop.venue);
+        van.style.display = "none";
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key.toLowerCase() === "x") {
+        currentIndex = (currentIndex + 1) % tourDates.length;
+        showStop(currentIndex);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      currentIndex = findInitialIndex();
+      showStop(currentIndex);
+    });
+
+    window.addEventListener("resize", () => {
+      if (currentIndex >= 0) showStop(currentIndex);
+    });
+
+    document.addEventListener("keydown", handleKeyPress);
   </script>
 </body>
 </html>
