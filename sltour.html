@@ -4,69 +4,98 @@
   <meta charset="UTF-8">
   <title>Taith Arad Goch</title>
   <style>
-    * {
+    body, html {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
       height: 100%;
       font-family: Arial, sans-serif;
       background: white;
       color: #c81441;
     }
+
     .container {
       display: flex;
       height: 100vh;
     }
+
     .left {
       width: 50%;
-      background-color: white;
-      padding: 2rem;
+      padding: 3em;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: flex-start;
     }
+
     .left h1 {
       font-size: 3em;
       margin-bottom: 1rem;
     }
+
     .left p {
       font-size: 2em;
     }
+
     .right {
       width: 50%;
-      background-color: #fff;
       position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
+      background: #fff;
     }
-    .wales-map {
-      max-height: 80%;
+
+    .map {
       max-width: 90%;
+      height: auto;
     }
+
     .van {
       position: absolute;
-      width: 150px;
-      left: 50%;
-      top: 40%;
+      width: 120px;
+      top: 45%;
+      left: 55%;
       transform: translate(-50%, -50%);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="left">
-      <h1>Ble ydym ni nesa?</h1>
-      <p>Aberystwyth Arts Centre</p>
-    </div>
-    <div class="right">
-      <!-- Example of a simple Wales outline (you can replace with a better one later) -->
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Wales_location_map.svg/800px-Wales_location_map.svg.png" alt="Map of Wales" class="wales-map">
-      <img src="c451d976-c284-4cb9-8a65-f2ce32a8aa6f.png" alt="Van" class="van">
-    </div>
+
+<div class="container">
+  <div class="left">
+    <h1>Ble ydym ni nesa?</h1>
+    <p id="venue">Yn llwytho...</p>
   </div>
+  <div class="right">
+    <img class="map" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Wales_location_map.svg/800px-Wales_location_map.svg.png" alt="Map of Wales">
+    <img class="van" src="AG-van.svg" alt="Van">
+  </div>
+</div>
+
+<script>
+  const tourDates = [
+    { date: '2025-06-18', venue: 'Canolfan y Celfyddydau Aberystwyth' },
+    { date: '2025-06-19', venue: 'Riverfront, Casnewydd' },
+    { date: '2025-06-20', venue: 'Canolfan Garth Olwg, Pentre’r Eglwys' },
+    { date: '2025-06-23', venue: 'Canolfan Taliesin, Abertawe' },
+    { date: '2025-06-24', venue: 'Y Drenewydd' },
+    { date: '2025-06-26', venue: 'Neuadd Dwyfor, Pwllheli' },
+    { date: '2025-06-27', venue: 'Neuadd Dwyfor, Pwllheli' },
+    { date: '2025-06-30', venue: 'Theatr Borough, Y Fenni' },
+    { date: '2025-07-02', venue: 'Y Muni, Pontypridd' },
+    { date: '2025-07-03', venue: 'Memo, Y Barri' }
+  ];
+
+  const today = new Date().toISOString().split("T")[0];
+  const venueElem = document.getElementById("venue");
+
+  const nextVenue = tourDates.find(d => d.date >= today);
+
+  if (nextVenue) {
+    venueElem.innerText = nextVenue.venue;
+  } else {
+    venueElem.innerText = "Taith wedi gorffen";
+  }
+</script>
+
 </body>
 </html>
