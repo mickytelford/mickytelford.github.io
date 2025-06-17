@@ -1,101 +1,129 @@
 <!DOCTYPE html>
 <html lang="cy">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Taith Arad Goch</title>
   <style>
-    body, html {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: white;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #ffffff;
       color: #c81441;
-    }
-
-    .container {
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
 
-    .left {
+    .left-panel {
+      background-color: #c81441;
+      width: 30%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+    }
+
+    .left-panel img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    .center-panel {
       width: 50%;
-      padding: 3em;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      padding: 2em;
+      box-sizing: border-box;
+      text-align: center;
     }
 
-    .left h1 {
+    .center-panel h1 {
       font-size: 3em;
-      margin-bottom: 1rem;
+      font-weight: bold;
+      margin-bottom: 1em;
     }
 
-    .left p {
+    #venue {
       font-size: 2em;
+      font-weight: 600;
     }
 
-    .right {
-      width: 50%;
+    .right-panel {
+      width: 20%;
       position: relative;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       background: #fff;
+      padding: 1em;
     }
 
     .map {
-      max-width: 90%;
+      max-width: 100%;
       height: auto;
+      border: 2px solid #c81441;
+      border-radius: 6px;
     }
 
     .van {
       position: absolute;
-      width: 120px;
-      top: 45%;
-      left: 55%;
+      width: 80px;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+  <div class="left-panel">
+    <img src="https://mickytelford.github.io/2019-Cwmni-Theatr-Arad-Goch.jpg" alt="Logo Arad Goch" />
+  </div>
 
-<div class="container">
-  <div class="left">
+  <div class="center-panel">
     <h1>Ble ydym ni nesa?</h1>
     <p id="venue">Yn llwytho...</p>
   </div>
-  <div class="right">
-    <img class="map" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Wales_location_map.svg/800px-Wales_location_map.svg.png" alt="Map of Wales">
-    <img class="van" src="AG-van.svg" alt="Van">
+
+  <div class="right-panel">
+    <img
+      class="map"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Wales_location_map.svg/800px-Wales_location_map.svg.png"
+      alt="Map of Wales"
+    />
+    <img class="van" src="c451d976-c284-4cb9-8a65-f2ce32a8aa6f.png" alt="Van" />
   </div>
-</div>
 
-<script>
-  const tourDates = [
-    { date: '2025-06-18', venue: 'Canolfan y Celfyddydau Aberystwyth' },
-    { date: '2025-06-19', venue: 'Riverfront, Casnewydd' },
-    { date: '2025-06-20', venue: 'Canolfan Garth Olwg, Pentre’r Eglwys' },
-    { date: '2025-06-23', venue: 'Canolfan Taliesin, Abertawe' },
-    { date: '2025-06-24', venue: 'Y Drenewydd' },
-    { date: '2025-06-26', venue: 'Neuadd Dwyfor, Pwllheli' },
-    { date: '2025-06-27', venue: 'Neuadd Dwyfor, Pwllheli' },
-    { date: '2025-06-30', venue: 'Theatr Borough, Y Fenni' },
-    { date: '2025-07-02', venue: 'Y Muni, Pontypridd' },
-    { date: '2025-07-03', venue: 'Memo, Y Barri' }
-  ];
+  <script>
+    const tourDates = [
+      { date: "2025-06-18", venue: "Canolfan y Celfyddydau Aberystwyth" },
+      { date: "2025-06-19", venue: "Riverfront, Casnewydd" },
+      { date: "2025-06-20", venue: "Canolfan Garth Olwg, Pentre’r Eglwys" },
+      { date: "2025-06-23", venue: "Canolfan Taliesin, Abertawe" },
+      { date: "2025-06-24", venue: "Y Drenewydd" },
+      { date: "2025-06-26", venue: "Neuadd Dwyfor, Pwllheli" },
+      { date: "2025-06-27", venue: "Neuadd Dwyfor, Pwllheli" },
+      { date: "2025-06-30", venue: "Theatr Borough, Y Fenni" },
+      { date: "2025-07-02", venue: "Y Muni, Pontypridd" },
+      { date: "2025-07-03", venue: "Memo, Y Barri" },
+    ];
 
-  const today = new Date().toISOString().split("T")[0];
-  const venueElem = document.getElementById("venue");
+    const today = new Date().toISOString().split("T")[0];
+    const venueElem = document.getElementById("venue");
 
-  const nextVenue = tourDates.find(d => d.date >= today);
+    const nextVenue = tourDates.find((d) => d.date >= today);
 
-  if (nextVenue) {
-    venueElem.innerText = nextVenue.venue;
-  } else {
-    venueElem.innerText = "Taith wedi gorffen";
-  }
-</script>
-
+    if (nextVenue) {
+      venueElem.innerText = nextVenue.venue;
+    } else {
+      venueElem.innerText = "Taith wedi gorffen";
+    }
+  </script>
 </body>
 </html>
