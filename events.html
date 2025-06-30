@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="cy">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digwyddiadau'r Wythnos | This Week's Events</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #ffffff;
+      color: #c81441;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .left-panel {
+      background-color: #c81441;
+      width: 30%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .left-panel img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    .center-panel {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 2em;
+      overflow-y: auto;
+      text-align: left;
+      border-left: 3px solid #c81441;
+      position: relative;
+    }
+
+    .center-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    .center-panel::-webkit-scrollbar-thumb {
+      background-color: #c81441;
+      border-radius: 4px;
+    }
+
+    .title {
+      font-size: clamp(2rem, 4vw, 3em);
+      font-weight: bold;
+      margin-bottom: 1em;
+      width: 100%;
+      text-align: center;
+    }
+
+    .event {
+      margin-bottom: 1.5em;
+      padding-bottom: 0.8em;
+      border-bottom: 1px solid #c81441;
+      width: 100%;
+    }
+
+    .event-title-welsh {
+      font-weight: bold;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      margin-bottom: 0.2em;
+    }
+
+    .event-title-english {
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      margin-bottom: 0.4em;
+      color: #aa374a;
+    }
+
+    .event-time {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin-bottom: 0.2em;
+    }
+
+    .event-time > div:first-child {
+      font-weight: 600;
+    }
+
+    .event-location {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin-bottom: 0.2em;
+      font-weight: 600;
+    }
+
+    .event-description-welsh {
+      font-weight: 600;
+      margin-top: 0.5em;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    }
+
+    .event-description-english {
+      font-style: italic;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      color: #aa374a;
+      margin-bottom: 0.5em;
+    }
+
+    /* Styles for no events fallback */
+    .no-events-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    .no-events-container img {
+      max-width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      opacity: 0.3;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .no-events-text {
+      position: absolute;
+      color: #c81441;
+      font-weight: bold;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      text-align: center;
+      padding: 0 1rem;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="left-panel">
+    <img src="https://mickytelford.github.io/2019-Cwmni-Theatr-Arad-Goch.jpg" alt="Logo Arad Goch" />
+  </div>
+
+  <div class="center-panel">
+    <div class="title">Digwyddiadau'r Wythnos | This Week's Events</div>
+    <div id="events">Loading events...</div>
+  </div>
+
+  <script>
+    const calendarId = "8736a92dbab0f4c50ec6faf3fce62117e484df95ddef12df2c815c08593a599e@group.calendar.google.com";
+    const apiKey = "AIzaSyB_ja0bpccXPD7FiL7v3v-aUFUCwWFRBYI";
+
+    const welshDays = ['Dydd Sul', 'Dydd Llun', 'Dydd Mawrth', 'Dydd Mercher', 'Dydd Iau', 'Dydd Gwener', 'Dydd Sadwrn'];
+    const welshMonths = ['Ionawr', 'Chwefror', 'Mawrth', 'Ebrill', 'Mai', 'Mehefin', 'Gorffennaf', 'Awst', 'Medi', 'Hydref', 'Tachwedd', 'Rhagfyr'];
+
+    function formatDateWelsh(date) {
+      const dayName = welshDays[date.getDay()];
+      const dayNum = date.getDate();
+      const monthName = welshMonths[date.getMonth()];
+      return `${dayName}, ${dayNum} ${monthName}`;
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getWeekRange() {
+      const now = new Date();
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      const day = start.getDay();
+      // Week starts Monday (1), adjust if Sunday (0)
+      const diff = (day === 0 ? -6 : 1) - day;
+      start.setDate(start.getDate() + diff);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      return {
+        timeMin: start.toISOString(),
+        timeMax: end.toISOString()
+      };
+    }
+
+    function splitBilingual(text) {
+      const parts = text.split("///");
+      return {
+        welsh: parts[0]?.trim() || "",
+        english: parts[1]?.trim() || ""
+      };
+    }
+
+    function showNoEvents() {
+      const container = document.getElementById("events");
+      container.innerHTML = `
+        <div class="no-events-container">
+          <img src="cp.jpg" alt="No events found" />
+          <div class="no-events-text">wps! Allwn ni ddim dod o hyd i unrhyw ddigwyddiadau yma</div>
+        </div>
+      `;
+    }
+
+    async function fetchEvents() {
+      const { timeMin, timeMax } = getWeekRange();
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API fetch failed");
+        const data = await res.json();
+        const container = document.getElementById("events");
+        container.innerHTML = "";
+
+        if (!data.items || data.items.length === 0) {
+          showNoEvents();
+          return;
+        }
+
+        data.items.forEach(event => {
+          const start = new Date(event.start.dateTime || event.start.date);
+          const bilingualTitle = splitBilingual(event.summary || "");
+          const bilingualDesc = splitBilingual(event.description || "");
+
+          const eventDiv = document.createElement("div");
+          eventDiv.className = "event";
+
+          eventDiv.innerHTML = `
+            <div class="event-title-welsh">${bilingualTitle.welsh}</div>
+            <div class="event-title-english">${bilingualTitle.english}</div>
+            <div class="event-time">
+              <div>${formatDateWelsh(start)}, ${formatTime(start)}</div>
+              <div style="font-style: italic; color: #aa374a;">
+                ${start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}, ${formatTime(start)}
+              </div>
+            </div>
+            ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
+            ${event.description ? `
+              <div class="event-description-welsh">${bilingualDesc.welsh}</div>
+              <div class="event-description-english">${bilingualDesc.english}</div>
+            ` : ''}
+          `;
+
+          container.appendChild(eventDiv);
+        });
+      } catch (e) {
+        console.error(e);
+        showNoEvents();
+      }
+    }
+
+    fetchEvents();
+    setInterval(fetchEvents, 1000 * 60 * 5);
+  </script>
+</body>
+</html>
