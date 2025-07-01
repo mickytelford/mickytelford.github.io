@@ -89,6 +89,10 @@
       margin-bottom: 0.2em;
     }
 
+    .event-time > div {
+      margin-bottom: 0.2em;
+    }
+
     .event-time > div:first-child {
       font-weight: 600;
     }
@@ -112,7 +116,6 @@
       margin-bottom: 0.5em;
     }
 
-    /* Styles for no events fallback */
     .no-events-container {
       position: relative;
       width: 100%;
@@ -168,6 +171,14 @@
       return `${dayName}, ${dayNum} ${monthName}`;
     }
 
+    function formatDateEnglish(date) {
+      return date.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+    }
+
     function formatTime(date) {
       return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     }
@@ -177,7 +188,6 @@
       const start = new Date(now);
       start.setHours(0, 0, 0, 0);
       const day = start.getDay();
-      // Week starts Monday (1), adjust if Sunday (0)
       const diff = (day === 0 ? -6 : 1) - day;
       start.setDate(start.getDate() + diff);
       const end = new Date(start);
@@ -202,7 +212,7 @@
       container.innerHTML = `
         <div class="no-events-container">
           <img src="cp.jpg" alt="No events found" />
-          <div class="no-events-text">wps! Allwn ni ddim dod o hyd i unrhyw ddigwyddiadau yma</div>
+          <div class="no-events-text">Wps! Allwn ni ddim dod o hyd i unrhyw ddigwyddiadau yr wythnos hon!</div>
         </div>
       `;
     }
@@ -236,9 +246,7 @@
             <div class="event-title-english">${bilingualTitle.english}</div>
             <div class="event-time">
               <div>${formatDateWelsh(start)}, ${formatTime(start)}</div>
-              <div style="font-style: italic; color: #aa374a;">
-                ${start.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}, ${formatTime(start)}
-              </div>
+              <div>${formatDateEnglish(start)}, ${formatTime(start)}</div>
             </div>
             ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
             ${event.description ? `
