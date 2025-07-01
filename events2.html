@@ -203,6 +203,7 @@
 
     let allEvents = [];
     let currentPage = 0;
+    let slideshowInterval;
     const eventsPerPage = 4;
 
     function displayEventsPage() {
@@ -215,3 +216,62 @@
 
       pageEvents.forEach(event => {
         const startDate = new Date(event.start.dateTime || event.start.date);
+        const bilingualTitle = splitBilingual(event.summary || "");
+        const bilingualDesc = splitBilingual(event.description || "");
+
+        const eventDiv = document.createElement("div");
+        eventDiv.className = "event";
+
+        eventDiv.innerHTML = `
+          <div class="event-title-welsh">${bilingualTitle.welsh}</div>
+          <div class="event-title-english">${bilingualTitle.english}</div>
+          <div class="event-time">
+            <div>${formatDateWelsh(startDate)}, ${formatTime(startDate)}</div>
+            <div style="font-style: italic; color: #aa374a;">
+              ${startDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}, ${formatTime(startDate)}
+            </div>
+          </div>
+          ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
+          ${event.description ? `
+            <div class="event-description-welsh">${bilingualDesc.welsh}</div>
+            <div class="event-description-english">${bilingualDesc.english}</div>
+          ` : ''}
+        `;
+
+        container.appendChild(eventDiv);
+      });
+
+      currentPage = (currentPage + 1) % Math.ceil(allEvents.length / eventsPerPage);
+    }
+
+    async function fetchEvents() {
+      const { timeMin, timeMax } = getWeekRange();
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API fetch failed");
+        const data = await res.json();
+        allEvents = data.items || [];
+
+        clearInterval(slideshowInterval);
+
+        if (allEvents.length === 0) {
+          showNoEvents();
+        } else {
+          currentPage = 0;
+          displayEventsPage();
+          slideshowInterval = setInterval(displayEventsPage, 10000);
+        }
+
+      } catch (e) {
+        console.error(e);
+        showNoEvents();
+      }
+    }
+
+    fetchEvents();
+    setInterval(fetchEvents, 1000 * 60 * 5);
+  </script>
+</body>
+</html>
