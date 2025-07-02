@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Digwyddiadau'r Wythnos | This Week's Events</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       padding: 0;
@@ -19,7 +16,6 @@
       height: 100vh;
       overflow: hidden;
     }
-
     .left-panel {
       background-color: #c81441;
       width: 30%;
@@ -28,13 +24,11 @@
       justify-content: center;
       padding: 1rem;
     }
-
     .left-panel img {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
     }
-
     .center-panel {
       width: 70%;
       display: flex;
@@ -46,7 +40,6 @@
       overflow: hidden;
       position: relative;
     }
-
     .title {
       font-size: clamp(2rem, 4vw, 3em);
       font-weight: bold;
@@ -54,60 +47,50 @@
       text-align: center;
       width: 100%;
     }
-
     #events {
       width: 100%;
       overflow: hidden;
     }
-
     .event {
       margin-bottom: 1.2em;
       padding-bottom: 0.8em;
       border-bottom: 1px solid #c81441;
       width: 100%;
     }
-
     .event-title-welsh {
       font-weight: bold;
       font-size: clamp(1.3rem, 3vw, 1.8rem);
       margin-bottom: 0.2em;
     }
-
     .event-title-english {
       font-style: italic;
       font-size: clamp(1rem, 2vw, 1.3rem);
       margin-bottom: 0.4em;
       color: #aa374a;
     }
-
     .event-time {
       font-size: clamp(1rem, 2vw, 1.2rem);
       margin-bottom: 0.2em;
     }
-
     .event-time > div:first-child {
       font-weight: 600;
     }
-
     .event-location {
       font-size: clamp(1rem, 2vw, 1.2rem);
       margin-bottom: 0.2em;
       font-weight: 600;
     }
-
     .event-description-welsh {
       font-weight: 600;
       margin-top: 0.5em;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
     }
-
     .event-description-english {
       font-style: italic;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       color: #aa374a;
       margin-bottom: 0.5em;
     }
-
     .no-events-container {
       position: relative;
       width: 100%;
@@ -118,7 +101,6 @@
       overflow: hidden;
       flex-direction: column;
     }
-
     .no-events-container img {
       max-width: 100%;
       max-height: 70vh;
@@ -127,7 +109,6 @@
       user-select: none;
       pointer-events: none;
     }
-
     .no-events-text {
       position: absolute;
       color: #c81441;
@@ -252,7 +233,12 @@
         const res = await fetch(url);
         if (!res.ok) throw new Error("API fetch failed");
         const data = await res.json();
-        allEvents = data.items || [];
+
+        const now = new Date();
+        allEvents = (data.items || []).filter(event => {
+          const start = new Date(event.start.dateTime || event.start.date);
+          return start >= now;
+        });
 
         clearInterval(slideshowInterval);
 
@@ -271,7 +257,7 @@
     }
 
     fetchEvents();
-    setInterval(fetchEvents, 1000 * 60 * 5);
+    setInterval(fetchEvents, 1000 * 60 * 5); // refresh every 5 minutes
   </script>
 </body>
 </html>
